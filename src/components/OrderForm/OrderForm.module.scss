@@ -1,0 +1,32 @@
+.noGut {
+  margin-right: 0;
+  margin-left: 0;
+
+  > .col,
+  > [class*='col-'] {
+    padding-right: 0;
+    padding-left: 0;
+  }
+}
+
+.map {
+  padding: 5px;
+}
+
+.list {
+  padding: 5px;
+}
+
+.control {
+  padding: 10px 0;
+}
+
+@media (min-width: 576px) {
+  .map {
+    padding-left: 10px;
+  }
+
+  .list {
+    padding-right: 10px;
+  }
+}
