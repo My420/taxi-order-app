@@ -1,3 +1,3 @@
 export const FROM_ADDRESS_INPUT = 'fromAddress';
 
-export const mock = '';
+export const ADDRESS_MARK_STYLE = 'islands#yellowIcon';
