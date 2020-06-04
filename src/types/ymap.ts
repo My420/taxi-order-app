@@ -1,10 +1,23 @@
 // inaccuracies in the package @types/yandex-maps
 
+
 /*
 ymaps.d.ts
 
 function geocode(request: string | number[], options?:{[key: string]: any}):
 Promise<IGeoObjectCollection>;
+
+
+namespace geolocation {
+        interface GeoLocationOption {
+            autoReverseGeocode?: boolean;
+            mapStateAutoApply?: boolean;
+            provider?: string;
+            timeout?: number;
+            useMapMargin?: boolean;
+        }
+        function get(options: GeoLocationOption): GeoObject;
+    }
 */
 
 
@@ -17,6 +30,7 @@ export interface IPlacemarkOptions extends ymaps.IPlacemarkOptions {
 }
 
 export interface GeocodeResult {
+  properties: ymaps.IDataManager;
   getAddressLine(): string;
   getAdministrativeAreas(): string[];
   getLocalities(): string[];
