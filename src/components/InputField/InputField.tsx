@@ -3,7 +3,7 @@ import React from 'react';
 import { ThunkDispatch } from 'redux-thunk';
 import { useSelector, useDispatch } from 'react-redux';
 import {
-  ActionType, changeInput, getLocation, ReducerState,
+  ActionType, changeInput, getLocationByAddress, ReducerState,
 } from '../../ducks/orderForm';
 import { getInputStatus } from '../../ducks/selector';
 import AddressInput from '../Inputs/AddressInput';
@@ -18,7 +18,7 @@ const InputField: React.FC = () => {
     dispatch(changeInput(value));
   };
   const onButtonClick = () => {
-    dispatch(getLocation());
+    dispatch(getLocationByAddress());
   };
   return (
     <AddressInput

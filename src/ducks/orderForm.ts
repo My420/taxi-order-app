@@ -1,5 +1,6 @@
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import validateAddressInput from '../utils/validateAddress';
+import mapService from '../services/map';
 
 // constant
 
@@ -48,7 +49,7 @@ export interface IOrder {
 export interface ILocation {
   address: string,
   lat: number,
-  loc: number,
+  lon: number,
 }
 
 export interface IChangeInputAction {
@@ -112,7 +113,7 @@ export interface ReducerState {
     isValid: boolean,
     error: string,
     address: string,
-    let: null | number,
+    lat: null | number,
     lon: null | number,
   },
   crew: {
@@ -195,12 +196,20 @@ export const sendOrderError = (errorMsg: string): IOrderSendErrorAction => ({
 // async action creator
 
 // eslint-disable-next-line arrow-body-style
-export const getLocation = (): ThunkAction<Promise<void>, ReducerState, {}, ActionType> => {
-  return async (dispatch: ThunkDispatch<{}, {}, ActionType>, getState) => {
-    dispatch(loadLocation());
-    const { value } = getState().input;
-    console.log(value);
-  };
+export const getLocationByAddress = (): ThunkAction<Promise<void>,
+ReducerState, {}, ActionType> => async (dispatch: ThunkDispatch<{}, {}, ActionType>, getState) => {
+  dispatch(loadLocation());
+  const { value } = getState().input;
+  const coords = await mapService.getCoordinate(value);
+  if (coords) {
+    dispatch(loadLocationSuccess({
+      address: value,
+      lat: coords[0],
+      lon: coords[1],
+    }));
+  } else {
+    dispatch(loadLocationError('Не удаолсь определить местоположение'));
+  }
 };
 
 // reducer
@@ -212,10 +221,10 @@ export const initialState: ReducerState = {
   },
   location: {
     isLoading: false,
-    isValid: false,
+    isValid: false, // ??
     error: '',
     address: '',
-    let: null,
+    lat: null,
     lon: null,
   },
   crew: {
@@ -240,6 +249,23 @@ const reducer = (state: ReducerState = initialState, action: ActionType) => {
     }
     case LOCATION_LOAD_REQUEST: {
       const newLocation = { ...state.location, isLoading: true, error: '' };
+      return { ...state, location: newLocation };
+    }
+    case LOCATION_LOAD_SUCCESS: {
+      const { data } = action.payload;
+      const newLocation = { ...state.location, ...data, isLoading: false };
+      return { ...state, location: newLocation };
+    }
+    case LOCATION_LOAD_ERROR: {
+      const { error } = action.payload;
+      const newLocation = {
+        ...state.location,
+        isLoading: false,
+        error,
+        address: '',
+        lat: null,
+        lot: null,
+      };
       return { ...state, location: newLocation };
     }
     default:

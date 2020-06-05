@@ -21,14 +21,16 @@ namespace geolocation {
 
 export interface IGeometry extends ymaps.IGeometry{
   setCoordinates: (a: number[]) => undefined
+  getCoordinates: () => number[];
 }
 
 export interface IPlacemarkOptions extends ymaps.IPlacemarkOptions {
   preset: string;
 }
 
-export interface GeocodeResult {
-  properties: ymaps.IDataManager;
+export interface GeocodeResult extends ymaps.GeoObject {
+  // / properties: ymaps.IDataManager;
+  geometry: IGeometry,
   getAddressLine(): string;
   getAdministrativeAreas(): string[];
   getLocalities(): string[];
