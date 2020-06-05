@@ -264,7 +264,7 @@ const reducer = (state: ReducerState = initialState, action: ActionType) => {
         error,
         address: '',
         lat: null,
-        lot: null,
+        lon: null,
       };
       return { ...state, location: newLocation };
     }

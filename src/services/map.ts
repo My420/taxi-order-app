@@ -6,10 +6,23 @@ import {
 } from '../types/ymap';
 import { ADDRESS_MARK_STYLE, DEFAULT_MAP_OPTIONS } from '../utils/constant';
 
+interface IClickData {
+  address: string,
+  lat: number,
+  lon: number,
+}
+
+interface observer{
+  (data: IClickData | string): any
+}
+
+
 class MapServices {
   private map: ymaps.Map | null = null;
 
   private addressMark: ymaps.Placemark | null = null;
+
+  private subscribers: observer[] = [];
 
   static moveMark(mark: ymaps.Placemark, coords: number[]) {
     if (mark.geometry) {
@@ -60,9 +73,22 @@ class MapServices {
       MapServices.moveMark(this.addressMark, coords);
       this.map.geoObjects.add(this.addressMark);
       const address = await MapServices.getAddress(coords);
-      console.log(address);
+      if (address) {
+        const data: IClickData = {
+          address,
+          lat: coords[0],
+          lon: coords[1],
+        };
+        this.notifyAll(data);
+      } else {
+        this.notifyAll('Не удалось определить улицу и номер дома.');
+      }
     }
   };
+
+  private notifyAll(data: IClickData | string) {
+    this.subscribers.forEach((subs) => subs(data));
+  }
 
   async getCoordinate(address: string): Promise<number[] | null> {
     if (this.map) {
@@ -87,6 +113,15 @@ class MapServices {
     }
     return null;
   }
+
+  subscribe(func: observer) {
+    this.subscribers.push(func);
+  }
+
+  unsubscribe(func: observer) {
+    this.subscribers = this.subscribers.filter((el) => !(el === func));
+  }
+
 
   init(id: string) {
     window.ymaps.ready(() => {
