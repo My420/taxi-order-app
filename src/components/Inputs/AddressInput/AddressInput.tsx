@@ -9,6 +9,7 @@ export interface AddressInputProps {
   isValid: boolean;
   error: string;
   onInputChange: (name: string, value: string) => void;
+  onButtonClick: (e: React.MouseEvent) => void;
 }
 
 const AddressInput: React.FC<AddressInputProps> = (props) => (
@@ -18,6 +19,7 @@ const AddressInput: React.FC<AddressInputProps> = (props) => (
     type="text"
     placeholder="Введите адрес"
     label="Введите адрес"
+    btnName="Найти"
     {...props}
   />
 );

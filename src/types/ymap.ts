@@ -1,6 +1,4 @@
 // inaccuracies in the package @types/yandex-maps
-
-
 /*
 ymaps.d.ts
 

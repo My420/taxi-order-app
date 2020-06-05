@@ -9,7 +9,6 @@
     "@types/node": "^12.12.24",
     "@types/react": "^16.9.17",
     "@types/react-dom": "^16.9.4",
-    "@types/yandex-maps": "^2.1.10",
     "bootstrap": "^4.5.0",
     "node-sass": "^4.14.1",
     "react": "^16.12.0",
@@ -18,6 +17,7 @@
     "react-scripts": "3.4.1",
     "redux": "^4.0.5",
     "redux-devtools-extension": "^2.13.8",
+    "redux-thunk": "^2.3.0",
     "typescript": "^3.7.4"
   },
   "scripts": {

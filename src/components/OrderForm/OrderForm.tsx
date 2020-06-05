@@ -1,10 +1,10 @@
 import React from 'react';
 import styles from './OrderForm.module.scss';
-import AddressInput from '../Inputs/AddressInput';
 import MenuSubmitButton from '../MenuSubmitButton';
 import CrewScreen from '../CrewScreen';
-import Map from '../Map';
+import MapField from '../MapField';
 import CrewList from '../CrewList/CrewList';
+import InputField from '../InputField';
 
 
 const OrderForm: React.FC = () => (
@@ -13,12 +13,7 @@ const OrderForm: React.FC = () => (
     <div className="row">
       <div className="col">
         <fieldset className={styles.inputs}>
-          <AddressInput
-            value=""
-            isValid={false}
-            error="sdafdfsdf sdf sdf ssdf sf sdf sd sd sd df sd"
-            onInputChange={() => {}}
-          />
+          <InputField />
         </fieldset>
       </div>
     </div>
@@ -29,7 +24,7 @@ const OrderForm: React.FC = () => (
     <div className={`row flex-column flex-sm-row ${styles.noGut}`}>
       <div className="col col-sm-7">
         <fieldset className={styles.map}>
-          <Map />
+          <MapField />
         </fieldset>
       </div>
       <div className="col col-sm-5">

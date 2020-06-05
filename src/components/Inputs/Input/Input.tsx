@@ -1,9 +1,10 @@
 import React from 'react';
 import { InputAttributeType } from '../../../types';
-// import styles from './Input.module.scss';
+import styles from './Input.module.scss';
 
 export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   label: string;
+  btnName: string;
   type: InputAttributeType;
   name: string;
   id: string;
@@ -14,11 +15,14 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   isValid: boolean;
   error: string;
   onInputChange: (name: string, value: string) => void;
+  onButtonClick: (e: React.MouseEvent) => void;
 }
 
 const Input: React.FC<InputProps> = ({
   value,
+  btnName,
   onInputChange,
+  onButtonClick,
   label,
   name,
   id,
@@ -32,13 +36,18 @@ const Input: React.FC<InputProps> = ({
     onInputChange(inputName, newValue);
   };
 
+  const handleClick = (evt: React.MouseEvent) => {
+    evt.preventDefault();
+    onButtonClick(evt);
+  };
+
   return (
     <div className="form-group">
       <div className="row flex-column flex-sm-row">
         <label htmlFor={id} className="col col-sm-3 col-form-label">
           {label}
         </label>
-        <div className="col col-sm-9">
+        <div className="col col-sm-7">
           <input
             value={value}
             id={id}
@@ -48,6 +57,11 @@ const Input: React.FC<InputProps> = ({
             placeholder={placeholder}
             onChange={handleChange}
           />
+        </div>
+        <div className={`col col-sm-2 d-flex justify-content-center ${styles.btnContainer}`}>
+          <button type="button" className="btn btn-info" onClick={handleClick} disabled={!isValid}>
+            {btnName}
+          </button>
         </div>
       </div>
       <div className="row justify-content-end">
@@ -60,10 +74,5 @@ const Input: React.FC<InputProps> = ({
     </div>
   );
 };
-
-/* Input.defaultProps = {
-  extensionContainerClass: '',
-  extensionInputClass: '',
-}; */
 
 export default Input;

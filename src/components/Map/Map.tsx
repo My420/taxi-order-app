@@ -5,7 +5,7 @@ import { createAddressMark, moveMark, getLocation } from '../../services/map';
 
 const Map: React.FC = () => {
   console.log('render map!!!!!!!!');
-  // const map = useMap();
+
   const map = useMap();
   if (map) {
     const addressMark = createAddressMark();

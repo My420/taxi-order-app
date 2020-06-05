@@ -22,11 +22,11 @@ export const moveMark = (mark: ymaps.Placemark, coords: number[]) => {
   }
 };
 
-export const getLocation = async (coords: number[]): Promise<string> => {
+export const getLocation = async (coords: number[]): Promise<string | null> => {
   const response = await window.ymaps.geocode(coords) as IGeoObjectCollection;
 
   const streetName = response.geoObjects.get(0).getThoroughfare();
   const houseNumber = response.geoObjects.get(0).getPremiseNumber();
   if (streetName && houseNumber) return `${streetName}, ${houseNumber}`;
-  return response.geoObjects.get(0).getAddressLine();
+  return null;
 };

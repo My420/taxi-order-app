@@ -26,3 +26,11 @@ export type InputAttributeType =
   | 'color';
 
 export type ButtonAttributeType = 'button' | 'reset' | 'submit';
+
+export interface IFieldValidator {
+  isValid: boolean;
+  error: string;
+}
+export interface IErrorConstant {
+  [key: string]: IFieldValidator;
+}
