@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './OrderForm.module.scss';
 import MenuSubmitButton from '../MenuSubmitButton';
 import CrewScreen from '../CrewScreen';
-import MapField from '../MapField';
+import Map from '../Map';
 import CrewList from '../CrewList/CrewList';
 import InputField from '../InputField';
 
@@ -24,7 +24,7 @@ const OrderForm: React.FC = () => (
     <div className={`row flex-column flex-sm-row ${styles.noGut}`}>
       <div className="col col-sm-7">
         <fieldset className={styles.map}>
-          <MapField />
+          <Map />
         </fieldset>
       </div>
       <div className="col col-sm-5">

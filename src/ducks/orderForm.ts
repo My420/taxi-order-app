@@ -1,6 +1,7 @@
-// constant
-
+import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import validateAddressInput from '../utils/validateAddress';
+
+// constant
 
 export const moduleName = 'ORDER_FORM';
 export const INPUT_CHANGE = 'ORDER_FORM/INPUT/CHANGE';
@@ -149,6 +150,7 @@ export const loadLocation = (): ILocationLoadRequestAction => ({
   payload: null,
 });
 
+
 export const loadLocationSuccess = (data: ILocation): ILocationLoadSuccessAction => ({
   type: LOCATION_LOAD_SUCCESS,
   payload: { data },
@@ -188,6 +190,18 @@ export const sendOrderError = (errorMsg: string): IOrderSendErrorAction => ({
   type: ORDER_SEND_ERROR,
   payload: { error: errorMsg },
 });
+
+
+// async action creator
+
+// eslint-disable-next-line arrow-body-style
+export const getLocation = (): ThunkAction<Promise<void>, ReducerState, {}, ActionType> => {
+  return async (dispatch: ThunkDispatch<{}, {}, ActionType>, getState) => {
+    dispatch(loadLocation());
+    const { value } = getState().input;
+    console.log(value);
+  };
+};
 
 // reducer
 export const initialState: ReducerState = {
