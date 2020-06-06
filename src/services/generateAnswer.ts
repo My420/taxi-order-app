@@ -70,7 +70,7 @@ const generateAnswer = (request: ICrewRequest) => {
   };
 
   return new Promise<string>((res) => {
-    setTimeout(() => res(JSON.stringify(mock)), 200);
+    setTimeout(() => res(JSON.stringify(mock)), 600);
   });
 };
 

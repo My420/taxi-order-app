@@ -21,6 +21,6 @@ const Map: React.FC = () => {
     mapService.init('ymap');
     mapService.onAddressMarkChange(onMapClick);
   });
-  return (<div id="ymap" className={styles.map} />);
+  return (<div id="ymap" className={`card ${styles.map}`} />);
 };
 export default Map;

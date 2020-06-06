@@ -1,0 +1,11 @@
+.container {
+  width: 286px;
+  height: 128px;
+  overflow: hidden;
+}
+
+@media (max-width: 576px) {
+  .wrapper {
+    height: 164px;
+  }
+}

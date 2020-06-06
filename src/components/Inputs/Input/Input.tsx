@@ -59,14 +59,14 @@ const Input: React.FC<InputProps> = ({
           />
         </div>
         <div className={`col col-sm-2 d-flex justify-content-center ${styles.btnContainer}`}>
-          <button type="button" className="btn btn-info" onClick={handleClick} disabled={!isValid}>
+          <button type="button" className={`btn btn-${isValid ? 'info' : 'secondary'}`} onClick={handleClick} disabled={!isValid}>
             {btnName}
           </button>
         </div>
       </div>
       <div className="row justify-content-end">
         <div className="col col-sm-9">
-          <span className={`alert-danger ${isValid ? 'invisible' : ''}`}>
+          <span className={`alert-danger ${styles.error}`}>
             {error}
           </span>
         </div>
@@ -76,3 +76,5 @@ const Input: React.FC<InputProps> = ({
 };
 
 export default Input;
+
+// ${isValid ? 'invisible' : ''}

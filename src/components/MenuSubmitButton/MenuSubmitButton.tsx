@@ -8,6 +8,7 @@ export interface MenuSubmitButtonProps
   React.ButtonHTMLAttributes<HTMLButtonElement>,
   HTMLButtonElement
   > {
+  disabled: boolean,
   text: string;
   name: string;
   onButtonClick: (evt: React.MouseEvent<HTMLButtonElement>) => void;
@@ -19,13 +20,15 @@ const MenuSubmitButton: React.FC<MenuSubmitButtonProps> = ({
   name,
   extensionClass,
   onButtonClick,
+  disabled,
   ...rest
 }) => (
   <button
-    className="btn btn-lg btn-primary"
+    className={`btn btn-lg btn-${disabled ? 'secondary' : 'primary'}`}
     type="submit"
     name={name}
     onClick={onButtonClick}
+    disabled
     {...rest}
   >
     {text}

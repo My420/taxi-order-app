@@ -1,4 +1,16 @@
 .list {
-  height: 300px;
-  background-color: black;
+  height: 400px;
+  overflow: auto;
+}
+
+@media (max-width: 768px) {
+  .list {
+    height: 340px;
+  }
+}
+
+@media (max-width: 576px) {
+  .list {
+    height: 300px;
+  }
 }

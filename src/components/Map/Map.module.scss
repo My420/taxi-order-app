@@ -1,4 +1,15 @@
 .map {
-  height: 300px;
-  background-color: gray;
+  height: 400px;
+}
+
+@media (max-width: 768px) {
+  .map {
+    height: 340px;
+  }
+}
+
+@media (max-width: 576px) {
+  .map {
+    height: 300px;
+  }
 }
