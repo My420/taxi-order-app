@@ -1,5 +1,5 @@
 import React from 'react';
-import { FROM_ADDRESS_INPUT } from '../../../utils/constant';
+import FROM_ADDRESS_INPUT from '../../../utils/constant';
 import AuthInput from '../Input';
 
 export interface AddressInputProps {

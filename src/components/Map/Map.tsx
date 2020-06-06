@@ -1,29 +1,25 @@
 import React, { useEffect } from 'react';
-import { Dispatch } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
 import { useDispatch } from 'react-redux';
 import {
-  ILocation, loadLocationSuccess, ActionType, loadLocationError,
+  ActionType, setLocationFromCoords, ReducerState,
 } from '../../ducks/orderForm';
-import mapService from '../../services/map';
+import mapService, { IAddressError, IMarkData } from '../../services/map';
 import styles from './Map.module.scss';
 
 
 const Map: React.FC = () => {
   console.log('render map!!!!!!!!');
 
-  const dispatch = useDispatch<Dispatch<ActionType>>();
+  const dispatch = useDispatch<ThunkDispatch<ReducerState, {}, ActionType>>();
 
-  const onMapClick = (data: ILocation | string) => {
-    if (typeof data === 'string') {
-      dispatch(loadLocationError(data));
-    } else {
-      dispatch(loadLocationSuccess(data));
-    }
+  const onMapClick = (data: IMarkData | IAddressError) => {
+    dispatch(setLocationFromCoords(data));
   };
 
   useEffect(() => {
     mapService.init('ymap');
-    mapService.subscribe(onMapClick);
+    mapService.onAddressMarkChange(onMapClick);
   });
   return (<div id="ymap" className={styles.map} />);
 };
