@@ -1,6 +1,7 @@
 import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import validateAddressInput from '../utils/validateAddress';
 import mapService from '../services/map';
+import { findCrew } from '../services/crew';
 
 // constant
 
@@ -12,6 +13,7 @@ export const LOCATION_LOAD_ERROR = 'ORDER_FORM/LOCATION/LOAD_ERROR';
 export const CREW_LOAD_REQUEST = 'ORDER_FORM/CREW/LOAD_REQUEST';
 export const CREW_LOAD_SUCCESS = 'ORDER_FORM/CREW/LOAD_SUCCESS';
 export const CREW_LOAD_ERROR = 'ORDER_FORM/CREW/LOAD_ERROR';
+export const CREW_CLEAR = 'ORDER_FORM/CREW/CLEAR';
 export const ORDER_SEND_REQUEST = 'ORDER_FORM/ORDER/SEND_REQUEST';
 export const ORDER_SEND_SUCCESS = 'ORDER_FORM/ORDER/SEND_SUCCESS';
 export const ORDER_SEND_ERROR = 'ORDER_FORM/ORDER/SEND_ERROR';
@@ -20,24 +22,25 @@ export const ORDER_SEND_ERROR = 'ORDER_FORM/ORDER/SEND_ERROR';
 // types
 
 export interface ICrewInfo {
-  'crew_id': number,
-  'car_mark': string,
-  'car_model': string,
-  'car_color': string,
-  'car_number': string,
-  'driver_name': string,
-  'driver_phone': string,
-  'lat': number,
-  'lon': number,
-  'distance': number,
+  crew_id: number,
+  car_mark: string,
+  car_model: string,
+  car_color: string,
+  car_number: string,
+  driver_name: string,
+  driver_phone: string,
+  lat: number,
+  lon: number,
+  distance: number
 }
 
 export type CrewList = ICrewInfo[];
+export interface ICrewData { data: ICrewInfo[] }
 
 export interface IOrder {
-  'source_time': string,
-  'addresses': ILocation[],
-  'crew_id': number,
+  source_time: string,
+  addresses: ILocation[],
+  crew_id: number,
 }
 
 export interface ILocation {
@@ -74,17 +77,21 @@ export interface ILocationLoadErrorAction {
 
 export interface ICrewLoadRequestAction {
   type: typeof CREW_LOAD_REQUEST,
-  payload: {data: ILocation},
+  payload: null,
 }
-
 export interface ICrewLoadSuccessAction {
   type: typeof CREW_LOAD_SUCCESS,
-  payload: {data: CrewList},
+  payload: ICrewData,
 }
 
 export interface ICrewLoadErrorAction {
   type: typeof CREW_LOAD_ERROR,
   payload: { error: string },
+}
+
+export interface ICrewClearAction {
+  type: typeof CREW_CLEAR,
+  payload: null,
 }
 
 export interface IOrderSendRequestAction {
@@ -120,7 +127,7 @@ export interface ReducerState {
     isLoading: boolean,
     error: string,
     list: CrewList| null,
-    selected: string | null,
+    selected: number | null,
   },
   order: {
     isSending: boolean,
@@ -137,7 +144,8 @@ export type ActionType = IChangeInputAction
 | ICrewLoadErrorAction
 | IOrderSendRequestAction
 | IOrderSendSuccessAction
-| IOrderSendErrorAction;
+| IOrderSendErrorAction
+| ICrewClearAction;
 
 // action creator
 
@@ -162,19 +170,24 @@ export const loadLocationError = (errorMsg: string): ILocationLoadErrorAction =>
   payload: { error: errorMsg },
 });
 
-export const loadCrew = (data: ILocation): ICrewLoadRequestAction => ({
+export const loadCrew = (): ICrewLoadRequestAction => ({
   type: CREW_LOAD_REQUEST,
-  payload: { data },
+  payload: null,
 });
 
-export const loadCrewSuccess = (data: CrewList): ICrewLoadSuccessAction => ({
+export const loadCrewSuccess = (data: ICrewData): ICrewLoadSuccessAction => ({
   type: CREW_LOAD_SUCCESS,
-  payload: { data },
+  payload: data,
 });
 
 export const loadCrewError = (errorMsg: string): ICrewLoadErrorAction => ({
   type: CREW_LOAD_ERROR,
   payload: { error: errorMsg },
+});
+
+export const clearCrew = (): ICrewClearAction => ({
+  type: CREW_CLEAR,
+  payload: null,
 });
 
 export const sendOrder = (data: IOrder): IOrderSendRequestAction => ({
@@ -192,30 +205,54 @@ export const sendOrderError = (errorMsg: string): IOrderSendErrorAction => ({
   payload: { error: errorMsg },
 });
 
+// utils
+
+const sortCrews = (crews: CrewList): CrewList => crews.sort((a, b) => {
+  if (a.distance > b.distance) return 1;
+  if (a.distance < b.distance) return -1;
+  return 0;
+});
+
 
 // async action creator
+export const getCrewInfo = (data: ILocation): ThunkAction<Promise<void>,
+ReducerState, {}, ActionType> => async (dispatch: ThunkDispatch<{}, {}, ActionType>) => {
+  dispatch(loadCrew());
+  const crewsData = await findCrew(data);
+  if ('data' in crewsData) {
+    dispatch(loadCrewSuccess(crewsData));
+  } else {
+    dispatch(loadLocationError(crewsData.error));
+  }
+};
 
 // eslint-disable-next-line arrow-body-style
 export const getLocationByAddress = (): ThunkAction<Promise<void>,
-ReducerState, {}, ActionType> => async (dispatch: ThunkDispatch<{}, {}, ActionType>, getState) => {
+ReducerState,
+{},
+ActionType> => async (dispatch: ThunkDispatch<ReducerState, {}, ActionType>, getState) => {
   dispatch(loadLocation());
+  dispatch(clearCrew());
   const { value } = getState().input;
   const data = await mapService.getCoordinate(value);
   if ('address' in data) {
     dispatch(loadLocationSuccess(data));
+    dispatch(getCrewInfo(data));
   } else {
     dispatch(loadLocationError(data.error));
   }
 };
 
 export const setLocationFromCoords = (data: ILocation | ILocationError): ThunkAction<Promise<void>,
-ReducerState, {}, ActionType> => async (dispatch: ThunkDispatch<{}, {}, ActionType>) => {
+ReducerState, {}, ActionType> => async (dispatch: ThunkDispatch<ReducerState, {}, ActionType>) => {
   dispatch(loadLocation());
+  dispatch(clearCrew());
   if ('error' in data) {
     const { error } = data;
     dispatch(loadLocationError(error));
   } else {
     dispatch(loadLocationSuccess(data));
+    dispatch(getCrewInfo(data));
   }
 };
 
@@ -238,7 +275,7 @@ export const initialState: ReducerState = {
     isLoading: false,
     error: '',
     list: [],
-    selected: '',
+    selected: null,
   },
   order: {
     isSending: false,
@@ -255,7 +292,15 @@ const reducer = (state: ReducerState = initialState, action: ActionType) => {
       return { ...state, input: { ...status, value } };
     }
     case LOCATION_LOAD_REQUEST: {
-      const newLocation = { ...state.location, isLoading: true, error: '' };
+      const newLocation = {
+        ...state.location,
+        isLoading: true,
+        error: '',
+        isValid: false,
+        address: '',
+        lat: null,
+        lon: null,
+      };
       return { ...state, location: newLocation };
     }
     case LOCATION_LOAD_SUCCESS: {
@@ -273,13 +318,43 @@ const reducer = (state: ReducerState = initialState, action: ActionType) => {
       const newLocation = {
         ...state.location,
         isLoading: false,
-        isValid: false,
         error,
-        address: '',
-        lat: null,
-        lon: null,
       };
       return { ...state, location: newLocation };
+    }
+    case CREW_LOAD_REQUEST: {
+      const newCrew = {
+        ...state.crew,
+        isLoading: true,
+        error: '',
+        list: [],
+        selected: null,
+      };
+      return { ...state, crew: newCrew };
+    }
+    case CREW_LOAD_SUCCESS: {
+      const { data } = action.payload;
+      sortCrews(data);
+      const newCrew = {
+        ...state.crew, isLoading: false, list: [...data], selected: data[0].crew_id,
+      };
+      return { ...state, crew: newCrew };
+    }
+    case CREW_LOAD_ERROR: {
+      const { error } = action.payload;
+      const newCrew = { ...state.crew, isLoading: false, error };
+      return { ...state, crew: newCrew };
+    }
+
+    case CREW_CLEAR: {
+      const newCrew = {
+        ...state.crew,
+        isLoading: false,
+        error: '',
+        list: [],
+        selected: null,
+      };
+      return { ...state, crew: newCrew };
     }
     default:
       return state;
