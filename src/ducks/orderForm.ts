@@ -236,8 +236,10 @@ ReducerState, {}, ActionType> => async (dispatch: ThunkDispatch<{}, {}, ActionTy
   const crewsData = await findCrew(data);
   if ('data' in crewsData) {
     dispatch(loadCrewSuccess(crewsData));
+    mapService.displayCabLocation([...crewsData.data]);
   } else {
-    dispatch(loadLocationError(crewsData.error));
+    dispatch(loadLocationError(crewsData.error)); // ????
+    mapService.deleteCabFromMap();
   }
 };
 
@@ -255,6 +257,7 @@ ActionType> => async (dispatch: ThunkDispatch<ReducerState, {}, ActionType>, get
     dispatch(getCrewInfo(data));
   } else {
     dispatch(loadLocationError(data.error));
+    mapService.deleteCabFromMap();
   }
 };
 
@@ -265,6 +268,7 @@ ReducerState, {}, ActionType> => async (dispatch: ThunkDispatch<ReducerState, {}
   if ('error' in data) {
     const { error } = data;
     dispatch(loadLocationError(error));
+    mapService.deleteCabFromMap();
   } else {
     dispatch(loadLocationSuccess(data));
     dispatch(getCrewInfo(data));

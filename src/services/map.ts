@@ -7,6 +7,9 @@ import {
 
 
 const ADDRESS_MARK_STYLE = 'islands#yellowIcon';
+const CAB_MARK_STYLE = 'islands#greenIcon';
+const MAX_CAB_AMOUNT = 10;
+
 const DEFAULT_MAP_OPTIONS = {
   center: [55.76, 37.64],
   zoom: 7,
@@ -32,6 +35,19 @@ export interface addressMarkObserver{
   (data: IMarkData | IAddressError): any
 }
 
+export interface ICabInfo {
+  crew_id: number,
+  car_mark: string,
+  car_model: string,
+  car_color: string,
+  car_number: string,
+  driver_name: string,
+  driver_phone: string,
+  lat: number,
+  lon: number,
+  distance: number
+}
+
 
 class MapServices {
   private map: ymaps.Map | null = null;
@@ -39,6 +55,8 @@ class MapServices {
   private addressMark: ymaps.Placemark | null = null;
 
   private addressMarkSubscribers: addressMarkObserver[] = [];
+
+  private cabMarks: ymaps.Placemark[] = [];
 
   static moveMark(mark: ymaps.Placemark, coords: number[]) {
     if (mark.geometry) {
@@ -54,6 +72,14 @@ class MapServices {
     const houseNumber = response.geoObjects.get(0).getPremiseNumber();
     if (streetName && houseNumber) return `${streetName}, ${houseNumber}`;
     return null;
+  }
+
+  static createCabMark(coords: number[]) {
+    const options = {
+      preset: CAB_MARK_STYLE,
+    } as IPlacemarkOptions;
+
+    return new window.ymaps.Placemark(coords, {}, options);
   }
 
 
@@ -82,6 +108,14 @@ class MapServices {
     this.addressMark = new window.ymaps.Placemark([55.76, 37.64], {}, options);
   }
 
+  private createCabMarks = async () => {
+    for (let i = 0; i < MAX_CAB_AMOUNT; i += 1) {
+      const mark = MapServices.createCabMark([55.76, 37.64]);
+      this.cabMarks.push(mark);
+    }
+  };
+
+
   private placeAddressMark = async (e: object | ymaps.IEvent) => {
     const event = e as ymaps.IEvent;
     const coords = event.get('coords') as number[];
@@ -107,9 +141,29 @@ class MapServices {
     }
   };
 
+
   private notifyAll(data: IMarkData | IAddressError) {
     this.addressMarkSubscribers.forEach((subs) => subs(data));
   }
+
+  displayCabLocation = async (data: ICabInfo[]) => {
+    const amount = Math.min(data.length, MAX_CAB_AMOUNT);
+    for (let i = 0; i < amount; i += 1) {
+      const loc = [data[i].lat, data[i].lon];
+      if (this.cabMarks[i]) {
+        MapServices.moveMark(this.cabMarks[i], loc);
+      } else {
+        this.cabMarks[i] = MapServices.createCabMark(loc);
+      }
+      if (this.map) this.map.geoObjects.add(this.cabMarks[i]);
+    }
+  };
+
+  deleteCabFromMap = async () => {
+    this.cabMarks.forEach((cab) => {
+      if (this.map) this.map.geoObjects.remove(cab);
+    });
+  };
 
   async getCoordinate(address: string): Promise<IMarkData | IAddressError> {
     if (this.map) {
@@ -151,6 +205,7 @@ class MapServices {
     window.ymaps.ready(() => {
       this.createMap(id);
       this.createAddressMark();
+      this.createCabMarks();
     });
   }
 }
