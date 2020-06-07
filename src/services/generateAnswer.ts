@@ -21,8 +21,8 @@ const generateAnswer = (request: ICrewRequest) => {
       crews_info: [
         {
           crew_id: 123,
-          car_mark: 'Chevrolet',
-          car_model: 'Lacetti',
+          car_mark: 'KIA',
+          car_model: 'CEED',
           car_color: 'синий',
           car_number: 'Е234КУ',
           driver_name: 'Деточкин',
@@ -55,8 +55,8 @@ const generateAnswer = (request: ICrewRequest) => {
         },
         {
           crew_id: 130,
-          car_mark: 'KIA',
-          car_model: 'Ceed',
+          car_mark: 'Chevrolet',
+          car_model: 'Lacetti',
           car_color: 'красный',
           car_number: 'А875КР',
           driver_name: 'Семенов',

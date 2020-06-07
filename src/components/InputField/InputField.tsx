@@ -23,6 +23,7 @@ const InputField: React.FC = () => {
       {...status}
       onInputChange={onInputChange}
       onButtonClick={onButtonClick}
+      onEnterPress={onButtonClick}
     />
   );
 };

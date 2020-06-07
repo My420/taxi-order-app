@@ -10,6 +10,7 @@ export interface AddressInputProps {
   error: string;
   onInputChange: (name: string, value: string) => void;
   onButtonClick: (e: React.MouseEvent) => void;
+  onEnterPress: (e: React.KeyboardEvent) => void;
 }
 
 const AddressInput: React.FC<AddressInputProps> = (props) => (

@@ -16,6 +16,7 @@ export interface InputProps extends React.HTMLAttributes<HTMLInputElement> {
   error: string;
   onInputChange: (name: string, value: string) => void;
   onButtonClick: (e: React.MouseEvent) => void;
+  onEnterPress: (e: React.KeyboardEvent) => void;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -23,6 +24,7 @@ const Input: React.FC<InputProps> = ({
   btnName,
   onInputChange,
   onButtonClick,
+  onEnterPress,
   label,
   name,
   id,
@@ -41,6 +43,13 @@ const Input: React.FC<InputProps> = ({
     onButtonClick(evt);
   };
 
+  const handleKeyPress = (evt: React.KeyboardEvent) => {
+    if (evt.key === 'Enter' && isValid) {
+      evt.preventDefault();
+      onEnterPress(evt);
+    }
+  };
+
   return (
     <div className="form-group">
       <div className="row flex-column flex-sm-row">
@@ -56,10 +65,16 @@ const Input: React.FC<InputProps> = ({
             type={type}
             placeholder={placeholder}
             onChange={handleChange}
+            onKeyPress={handleKeyPress}
           />
         </div>
         <div className={`col col-sm-2 d-flex justify-content-center ${styles.btnContainer}`}>
-          <button type="button" className={`btn btn-${isValid ? 'info' : 'secondary'}`} onClick={handleClick} disabled={!isValid}>
+          <button
+            type="button"
+            className={`btn btn-${isValid ? 'info' : 'secondary'}`}
+            onClick={handleClick}
+            disabled={!isValid}
+          >
             {btnName}
           </button>
         </div>

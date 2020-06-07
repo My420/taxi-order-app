@@ -238,7 +238,7 @@ ReducerState, {}, ActionType> => async (dispatch: ThunkDispatch<{}, {}, ActionTy
     dispatch(loadCrewSuccess(crewsData));
     mapService.displayCabLocation([...crewsData.data]);
   } else {
-    dispatch(loadLocationError(crewsData.error)); // ????
+    dispatch(loadCrewError(crewsData.error));
     mapService.deleteCabFromMap();
   }
 };

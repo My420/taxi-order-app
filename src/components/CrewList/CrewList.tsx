@@ -2,7 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import { getCrewStatus } from '../../ducks/selector';
 import styles from './CrewList.module.scss';
-import CrewItem from '../CrewItem/CrewItem';
+import CrewItem from '../CrewItem';
 
 
 const CrewList: React.FC = () => {

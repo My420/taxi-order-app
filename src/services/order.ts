@@ -36,6 +36,8 @@ const getOrder = async (data: ILocation, crewID: number): Promise<IOrderAnswer> 
     crew_id: crewID,
   };
 
+  console.log('Order request ', requestData);
+
   try {
     const answer = await generateOrder(requestData);
     return JSON.parse(answer) as IOrderAnswer;

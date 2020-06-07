@@ -47,6 +47,8 @@ const getCrew = async (data: ILocation): Promise<ICrewAnswer> => {
     source_time: getDate(),
     addresses: [data],
   };
+  console.log('Crew request ', requestData);
+
   try {
     const answer = await generateAnswer(requestData);
     return JSON.parse(answer) as ICrewAnswer;
