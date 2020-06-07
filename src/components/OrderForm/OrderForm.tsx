@@ -11,10 +11,6 @@ import styles from './OrderForm.module.scss';
 import { getFormStatus } from '../../ducks/selector';
 import ModalWindow from '../ModalWindow';
 
-
-// import ModalWindow from '../ModalWindow';
-
-
 const OrderForm: React.FC = () => {
   const data = useSelector(getFormStatus);
   const dispatch = useDispatch<ThunkDispatch<ReducerState, {}, ActionType>>();
@@ -56,7 +52,7 @@ const OrderForm: React.FC = () => {
         <div className="col-auto">
           <fieldset className={styles.control}>
             <MenuSubmitButton
-              text="Continue"
+              text="Заказать"
               name="signInSubmit"
               onButtonClick={onClick}
               disabled={!isFormValid}
