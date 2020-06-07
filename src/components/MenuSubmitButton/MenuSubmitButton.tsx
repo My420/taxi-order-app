@@ -28,7 +28,7 @@ const MenuSubmitButton: React.FC<MenuSubmitButtonProps> = ({
     type="submit"
     name={name}
     onClick={onButtonClick}
-    disabled
+    disabled={disabled}
     {...rest}
   >
     {text}

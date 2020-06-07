@@ -14,3 +14,15 @@ export const getCrewStatus = (store: AppState) => ({
   error: store.crew.error,
   list: store.crew.list,
 });
+
+export const getFormStatus = (store: AppState) => ({
+  isInputValid: store.input.isValid,
+  isAddressValid: store.location.isValid,
+  crew: store.crew.selected,
+});
+
+export const getModalStatus = (store: AppState) => ({
+  inputValue: store.input.value,
+  address: store.location.address,
+  orderStatus: store.order,
+});

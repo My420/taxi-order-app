@@ -1,52 +1,72 @@
 import React from 'react';
-import styles from './OrderForm.module.scss';
+import { useSelector, useDispatch } from 'react-redux';
+import { ThunkDispatch } from 'redux-thunk';
+import { ActionType, ReducerState, sendUserOrder } from '../../ducks/orderForm';
 import MenuSubmitButton from '../MenuSubmitButton';
 import CrewScreen from '../CrewScreen';
 import Map from '../Map';
-import CrewList from '../CrewList/CrewList';
+import CrewList from '../CrewList';
 import InputField from '../InputField';
+import styles from './OrderForm.module.scss';
+import { getFormStatus } from '../../ducks/selector';
 
 
-const OrderForm: React.FC = () => (
-  <form className="form" name="signInForm">
-    <p className="visually-hidden">Форма заказа</p>
-    <div className="row">
-      <div className="col">
-        <fieldset className={styles.inputs}>
-          <InputField />
-        </fieldset>
-      </div>
-    </div>
+// import ModalWindow from '../ModalWindow';
 
-    <fieldset className={styles.crew}>
-      <CrewScreen />
-    </fieldset>
-    <div className={`row flex-column flex-sm-row ${styles.noGut}`}>
-      <div className="col col-sm-8">
-        <fieldset className={styles.map}>
-          <Map />
-        </fieldset>
-      </div>
-      <div className="col col-sm-4">
-        <fieldset className={styles.list}>
-          <CrewList />
-        </fieldset>
-      </div>
-    </div>
 
-    <div className="row justify-content-center">
-      <div className="col-auto">
-        <fieldset className={styles.control}>
-          <MenuSubmitButton
-            text="Continue"
-            name="signInSubmit"
-            onButtonClick={() => {}}
-            disabled
-          />
-        </fieldset>
+const OrderForm: React.FC = () => {
+  const data = useSelector(getFormStatus);
+  const dispatch = useDispatch<ThunkDispatch<ReducerState, {}, ActionType>>();
+  const isFormValid = data.isAddressValid && data.isInputValid && !!data.crew;
+  console.log(isFormValid);
+
+  const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    dispatch(sendUserOrder());
+  };
+
+  return (
+    <form className="form" name="signInForm">
+      <p className="visually-hidden">Форма заказа</p>
+      <div className="row">
+        <div className="col">
+          <fieldset className={styles.inputs}>
+            <InputField />
+          </fieldset>
+        </div>
       </div>
-    </div>
-  </form>
-);
+
+      <fieldset className={styles.crew}>
+        <CrewScreen />
+      </fieldset>
+      <div className={`row flex-column flex-sm-row ${styles.noGut}`}>
+        <div className="col col-sm-8">
+          <fieldset className={styles.map}>
+            <Map />
+          </fieldset>
+        </div>
+        <div className="col col-sm-4">
+          <fieldset className={styles.list}>
+            <CrewList />
+          </fieldset>
+        </div>
+      </div>
+
+      <div className="row justify-content-center">
+        <div className="col-auto">
+          <fieldset className={styles.control}>
+            <MenuSubmitButton
+              text="Continue"
+              name="signInSubmit"
+              onButtonClick={onClick}
+              disabled={!isFormValid}
+            />
+          </fieldset>
+        </div>
+      </div>
+      {/* <ModalWindow /> */}
+    </form>
+  );
+};
 
 export default OrderForm;

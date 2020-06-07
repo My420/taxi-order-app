@@ -2,6 +2,7 @@ import { ThunkAction, ThunkDispatch } from 'redux-thunk';
 import validateAddressInput from '../utils/validateAddress';
 import mapService from '../services/map';
 import { findCrew } from '../services/crew';
+import { findOrder } from '../services/order';
 
 // constant
 
@@ -17,6 +18,7 @@ export const CREW_CLEAR = 'ORDER_FORM/CREW/CLEAR';
 export const ORDER_SEND_REQUEST = 'ORDER_FORM/ORDER/SEND_REQUEST';
 export const ORDER_SEND_SUCCESS = 'ORDER_FORM/ORDER/SEND_SUCCESS';
 export const ORDER_SEND_ERROR = 'ORDER_FORM/ORDER/SEND_ERROR';
+export const ORDER_CLEAR = 'ORDER_FORM/ORDER/CLEAR';
 
 
 // types
@@ -96,17 +98,22 @@ export interface ICrewClearAction {
 
 export interface IOrderSendRequestAction {
   type: typeof ORDER_SEND_REQUEST,
-  payload: {data: IOrder},
+  payload: null,
 }
 
 export interface IOrderSendSuccessAction {
   type: typeof ORDER_SEND_SUCCESS,
-  payload: null,
+  payload: {id: number},
 }
 
 export interface IOrderSendErrorAction {
   type: typeof ORDER_SEND_ERROR,
   payload: { error: string },
+}
+
+export interface IOrderClearAction {
+  type: typeof ORDER_CLEAR,
+  payload: null,
 }
 
 export interface ReducerState {
@@ -132,6 +139,8 @@ export interface ReducerState {
   order: {
     isSending: boolean,
     isSuccess: boolean,
+    error: string,
+    orderID: number | null,
   }
 }
 
@@ -145,7 +154,8 @@ export type ActionType = IChangeInputAction
 | IOrderSendRequestAction
 | IOrderSendSuccessAction
 | IOrderSendErrorAction
-| ICrewClearAction;
+| ICrewClearAction
+| IOrderClearAction;
 
 // action creator
 
@@ -190,19 +200,24 @@ export const clearCrew = (): ICrewClearAction => ({
   payload: null,
 });
 
-export const sendOrder = (data: IOrder): IOrderSendRequestAction => ({
+export const sendOrder = (): IOrderSendRequestAction => ({
   type: ORDER_SEND_REQUEST,
-  payload: { data },
+  payload: null,
 });
 
-export const sendOrderSuccess = (): IOrderSendSuccessAction => ({
+export const sendOrderSuccess = (id: number): IOrderSendSuccessAction => ({
   type: ORDER_SEND_SUCCESS,
-  payload: null,
+  payload: { id },
 });
 
 export const sendOrderError = (errorMsg: string): IOrderSendErrorAction => ({
   type: ORDER_SEND_ERROR,
   payload: { error: errorMsg },
+});
+
+export const clearOrder = (): IOrderClearAction => ({
+  type: ORDER_CLEAR,
+  payload: null,
 });
 
 // utils
@@ -256,6 +271,25 @@ ReducerState, {}, ActionType> => async (dispatch: ThunkDispatch<ReducerState, {}
   }
 };
 
+export const sendUserOrder = (): ThunkAction<Promise<void>,
+ReducerState,
+{},
+ActionType> => async (dispatch: ThunkDispatch<ReducerState, {}, ActionType>, getState) => {
+  const { input: { value }, location, crew: { selected } } = getState();
+  const { address, lat, lon } = location;
+  dispatch(sendOrder());
+  if (value === address && lat && lon && selected) {
+    const orderData = await findOrder({ address, lat, lon }, selected);
+    if ('orderID' in orderData) {
+      dispatch(sendOrderSuccess(orderData.orderID));
+    } else {
+      dispatch(sendOrderError(orderData.error));
+    }
+  } else {
+    dispatch(sendOrderError('Адрес в поле ввода не совпадает с меткой на карте.'));
+  }
+};
+
 // reducer
 export const initialState: ReducerState = {
   input: {
@@ -279,7 +313,9 @@ export const initialState: ReducerState = {
   },
   order: {
     isSending: false,
+    error: '',
     isSuccess: false,
+    orderID: null,
   },
 };
 
@@ -356,6 +392,48 @@ const reducer = (state: ReducerState = initialState, action: ActionType) => {
       };
       return { ...state, crew: newCrew };
     }
+
+    case ORDER_SEND_REQUEST: {
+      const newOrder = {
+        ...state.order,
+        isSending: true,
+        error: '',
+        isSuccess: false,
+        orderID: null,
+      };
+      return { ...state, order: newOrder };
+    }
+
+    case ORDER_SEND_SUCCESS: {
+      const newOrder = {
+        ...state.order,
+        isSending: false,
+        isSuccess: true,
+        orderID: action.payload.id,
+      };
+      return { ...state, order: newOrder };
+    }
+
+    case ORDER_SEND_ERROR: {
+      const newOrder = {
+        ...state.order,
+        isSending: false,
+        error: action.payload.error,
+      };
+      return { ...state, order: newOrder };
+    }
+
+    case ORDER_CLEAR: {
+      const newOrder = {
+        ...state.order,
+        isSending: false,
+        error: '',
+        isSuccess: false,
+        orderID: null,
+      };
+      return { ...state, order: newOrder };
+    }
+
     default:
       return state;
   }
