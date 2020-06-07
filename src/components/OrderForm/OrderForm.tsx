@@ -9,6 +9,7 @@ import CrewList from '../CrewList';
 import InputField from '../InputField';
 import styles from './OrderForm.module.scss';
 import { getFormStatus } from '../../ducks/selector';
+import ModalWindow from '../ModalWindow';
 
 
 // import ModalWindow from '../ModalWindow';
@@ -17,8 +18,7 @@ import { getFormStatus } from '../../ducks/selector';
 const OrderForm: React.FC = () => {
   const data = useSelector(getFormStatus);
   const dispatch = useDispatch<ThunkDispatch<ReducerState, {}, ActionType>>();
-  const isFormValid = data.isAddressValid && data.isInputValid && !!data.crew;
-  console.log(isFormValid);
+  const isFormValid = data.isAddressValid && data.isInputValid && !!data.crew;  
 
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -64,7 +64,7 @@ const OrderForm: React.FC = () => {
           </fieldset>
         </div>
       </div>
-      {/* <ModalWindow /> */}
+      <ModalWindow />
     </form>
   );
 };

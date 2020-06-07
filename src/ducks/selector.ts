@@ -21,8 +21,4 @@ export const getFormStatus = (store: AppState) => ({
   crew: store.crew.selected,
 });
 
-export const getModalStatus = (store: AppState) => ({
-  inputValue: store.input.value,
-  address: store.location.address,
-  orderStatus: store.order,
-});
+export const getOrderStatus = (store: AppState) => ({ ...store.order });

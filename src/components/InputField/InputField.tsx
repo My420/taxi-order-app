@@ -10,8 +10,6 @@ import AddressInput from '../Inputs/AddressInput';
 
 
 const InputField: React.FC = () => {
-  console.log('renderInputField');
-
   const status = useSelector(getInputStatus);
   const dispatch = useDispatch<ThunkDispatch<ReducerState, {}, ActionType>>();
   const onInputChange = (_name: string, value: string) => {

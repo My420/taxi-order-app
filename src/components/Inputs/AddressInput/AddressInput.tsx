@@ -17,8 +17,8 @@ const AddressInput: React.FC<AddressInputProps> = (props) => (
     id="fromAddress"
     name={`${FROM_ADDRESS_INPUT}`}
     type="text"
-    placeholder="Введите адрес"
-    label="Введите адрес"
+    placeholder="например: Пушкина, 20"
+    label="Откуда:"
     btnName="Найти"
     {...props}
   />

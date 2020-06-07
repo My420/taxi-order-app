@@ -9,8 +9,6 @@ import styles from './Map.module.scss';
 
 
 const Map: React.FC = () => {
-  console.log('render map!!!!!!!!');
-
   const dispatch = useDispatch<ThunkDispatch<ReducerState, {}, ActionType>>();
 
   const onMapClick = (data: IMarkData | IAddressError) => {
