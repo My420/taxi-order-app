@@ -40,6 +40,7 @@ const DEFAULT_MAP_OPTIONS = {
 const ERRORS = {
   FIND_BY_PLACEMARK: 'Не удалось определить улицу и номер дома.',
   FIND_BY_ADDRESS: 'Не возможно найти адрес на карте.',
+  API: 'Нет связи с сервером геолокации.',
 };
 
 
@@ -98,12 +99,18 @@ class MapServices {
   }
 
   static async getAddress(coords: number[]): Promise<string | null> {
-    const response = await window.ymaps.geocode(coords) as IGeoObjectCollection;
+    try {
+      const response = await window.ymaps.geocode(coords) as IGeoObjectCollection;
 
-    const streetName = response.geoObjects.get(0).getThoroughfare();
-    const houseNumber = response.geoObjects.get(0).getPremiseNumber();
-    if (streetName && houseNumber) return `${streetName}, ${houseNumber}`;
-    return null;
+      const streetName = response.geoObjects.get(0).getThoroughfare();
+      const houseNumber = response.geoObjects.get(0).getPremiseNumber();
+      if (streetName && houseNumber) return `${streetName}, ${houseNumber}`;
+      return null;
+    } catch (e) {
+      const { message } = e as Error;
+      console.log(`Ошибка при определении адреса пользователя. ${message}`);
+      return null;
+    }
   }
 
   static createCabMark(coords: number[]) {
@@ -235,22 +242,27 @@ class MapServices {
         boundedBy: this.map.getBounds(),
         result: 1,
       };
-      const response = await window.ymaps.geocode(address, options) as IGeoObjectCollection;
-      const firstGeoObject = response.geoObjects.get(0);
-      if (firstGeoObject) {
-        const coords = firstGeoObject.geometry.getCoordinates();
-        const bounds = firstGeoObject.properties.get('boundedBy', {}) as number[][];
-        if (this.addressMark) {
-          this.changeInvalidMarkToValid(coords);
-          this.map.setBounds(bounds, {
-            checkZoomRange: true,
-          });
+      try {
+        const response = await window.ymaps.geocode(address, options) as IGeoObjectCollection;
+        const firstGeoObject = response.geoObjects.get(0);
+        if (firstGeoObject) {
+          const coords = firstGeoObject.geometry.getCoordinates();
+          const bounds = firstGeoObject.properties.get('boundedBy', {}) as number[][];
+          if (this.addressMark) {
+            this.changeInvalidMarkToValid(coords);
+            this.map.setBounds(bounds, {
+              checkZoomRange: true,
+            });
+          }
+          return {
+            address,
+            lat: coords[0],
+            lon: coords[1],
+          };
         }
-        return {
-          address,
-          lat: coords[0],
-          lon: coords[1],
-        };
+      } catch (e) {
+        this.deleteAddressMarksFromMap();
+        return { error: ERRORS.API };
       }
     }
     this.deleteAddressMarksFromMap();
