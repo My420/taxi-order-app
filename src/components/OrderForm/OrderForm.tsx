@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { ThunkDispatch } from 'redux-thunk';
 import { ActionType, ReducerState, sendUserOrder } from '../../ducks/orderForm';
 import MenuSubmitButton from '../MenuSubmitButton';
@@ -12,9 +12,9 @@ import { getFormStatus } from '../../ducks/selector';
 import ModalWindow from '../ModalWindow';
 
 const OrderForm: React.FC = () => {
-  const data = useSelector(getFormStatus);
+  const data = useSelector(getFormStatus, shallowEqual);
   const dispatch = useDispatch<ThunkDispatch<ReducerState, {}, ActionType>>();
-  const isFormValid = data.isAddressValid && data.isInputValid && !!data.crew;  
+  const isFormValid = data.isAddressValid && data.isInputValid && !!data.crew;
 
   const onClick = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();

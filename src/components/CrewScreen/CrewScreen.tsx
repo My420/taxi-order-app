@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, shallowEqual } from 'react-redux';
 import CrewCard from '../CrewCard';
 import { getLocationStatus, getCrewStatus } from '../../ducks/selector';
 import styles from './CrewScreen.module.scss';
@@ -8,8 +8,8 @@ import Alert from '../Alert/Alert';
 
 
 const CrewScreen: React.FC = () => {
-  const locationStatus = useSelector(getLocationStatus);
-  const crewStatus = useSelector(getCrewStatus);
+  const locationStatus = useSelector(getLocationStatus, shallowEqual);
+  const crewStatus = useSelector(getCrewStatus, shallowEqual);
 
   let component: React.ReactNode = <Alert />;
 

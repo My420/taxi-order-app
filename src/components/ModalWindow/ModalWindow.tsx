@@ -1,5 +1,5 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { Dispatch } from 'redux';
 import { ActionType, clearOrder } from '../../ducks/orderForm';
 import { getOrderStatus } from '../../ducks/selector';
@@ -7,7 +7,7 @@ import ModalCard from '../ModalCard';
 import Spinner from '../Spinner';
 
 const ModalWindow: React.FC = () => {
-  const order = useSelector(getOrderStatus);
+  const order = useSelector(getOrderStatus, shallowEqual);
   const dispatch = useDispatch<Dispatch<ActionType>>();
 
   const handleClick = (e: React.MouseEvent) => {

@@ -18,6 +18,7 @@ const InputField: React.FC = () => {
   const onButtonClick = () => {
     dispatch(getLocationByAddress());
   };
+
   return (
     <AddressInput
       {...status}
