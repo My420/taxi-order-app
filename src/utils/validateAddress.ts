@@ -1,7 +1,7 @@
 import { IErrorConstant, IFieldValidator } from '../types';
 
 // eslint-disable-next-line no-useless-escape
-const tester = /^((\d{1,2}-?[а-яё]){0,1})([А-ЯЁ]*[а-яё]*)+(\s{1}[А-ЯЁ]*[а-яё]*)*(,?\s{0,3})(\d{1,4}[\\\/]?\d{1,4})$/i;
+const tester = /^(\d{1,2}-?[а-яё]\s)?([А-Яа-я]\s?)+(,?\s{1,3})(\d{1,4})([\\\/]\d{1,4})?$/i;
 
 export const ERROR: IErrorConstant = {
   EMPTY: { isValid: false, error: 'Адрес на может быть пустым' },

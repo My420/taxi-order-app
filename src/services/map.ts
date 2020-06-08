@@ -6,9 +6,32 @@ import {
 } from '../types/ymap';
 
 
-const ADDRESS_MARK_STYLE = 'islands#yellowIcon';
-const CAB_MARK_STYLE = 'islands#greenIcon';
+//    constant
+
+const ADDRESS_MARK_STYLE = 'islands#yellowDotIcon';
+const CAB_MARK_STYLE = 'islands#darkGreenAutoIcon';
+const INVALID_MARK_STYLE = 'islands#redDotIcon';
 const MAX_CAB_AMOUNT = 10;
+
+const VALID_ADDRESS_MARK_OPTIONS = {
+  preset: ADDRESS_MARK_STYLE,
+} as IPlacemarkOptions;
+
+const INVALID_ADDRESS_MARK_OPTIONS = {
+  preset: INVALID_MARK_STYLE,
+} as IPlacemarkOptions;
+
+const CAB_MARK_OPTIONS = {
+  preset: CAB_MARK_STYLE,
+} as IPlacemarkOptions;
+
+const VALID_ADDRESS_MARK_PROPERTIES = {};
+
+const INVALID_ADDRESS_MARK_PROPERTIES = {
+  iconCaption: 'Адрес не найден',
+};
+
+const CAB_MARK_PROPERTIES = {};
 
 const DEFAULT_MAP_OPTIONS = {
   center: [55.76, 37.64],
@@ -18,6 +41,9 @@ const ERRORS = {
   FIND_BY_PLACEMARK: 'Не удалось определить улицу и номер дома.',
   FIND_BY_ADDRESS: 'Не возможно найти адрес на карте.',
 };
+
+
+//    type
 
 export interface IMarkData {
   address: string,
@@ -49,14 +75,20 @@ export interface ICabInfo {
 }
 
 
+//    service
+
+
 class MapServices {
   private map: ymaps.Map | null = null;
 
   private addressMark: ymaps.Placemark | null = null;
 
-  private addressMarkSubscribers: addressMarkObserver[] = [];
+  private invalidAddressMark: ymaps.Placemark | null = null;
 
   private cabMarks: ymaps.Placemark[] = [];
+
+  private addressMarkSubscribers: addressMarkObserver[] = [];
+
 
   static moveMark(mark: ymaps.Placemark, coords: number[]) {
     if (mark.geometry) {
@@ -75,11 +107,11 @@ class MapServices {
   }
 
   static createCabMark(coords: number[]) {
-    const options = {
-      preset: CAB_MARK_STYLE,
-    } as IPlacemarkOptions;
-
-    return new window.ymaps.Placemark(coords, {}, options);
+    return new window.ymaps.Placemark(
+      coords,
+      CAB_MARK_PROPERTIES,
+      CAB_MARK_OPTIONS,
+    );
   }
 
 
@@ -101,12 +133,21 @@ class MapServices {
   }
 
   private createAddressMark() {
-    const options = {
-      preset: ADDRESS_MARK_STYLE,
-    } as IPlacemarkOptions;
-
-    this.addressMark = new window.ymaps.Placemark([55.76, 37.64], {}, options);
+    this.addressMark = new window.ymaps.Placemark(
+      [55.76, 37.64],
+      VALID_ADDRESS_MARK_PROPERTIES,
+      VALID_ADDRESS_MARK_OPTIONS,
+    );
   }
+
+  private createInvalidAddressMark() {
+    this.invalidAddressMark = new window.ymaps.Placemark(
+      [55.76, 37.64],
+      INVALID_ADDRESS_MARK_PROPERTIES,
+      INVALID_ADDRESS_MARK_OPTIONS,
+    );
+  }
+
 
   private createCabMarks = async () => {
     for (let i = 0; i < MAX_CAB_AMOUNT; i += 1) {
@@ -115,15 +156,30 @@ class MapServices {
     }
   };
 
+  private changeInvalidMarkToValid(coords: number[]) {
+    if (this.map && this.invalidAddressMark && this.addressMark) {
+      this.map.geoObjects.remove(this.invalidAddressMark);
+      MapServices.moveMark(this.addressMark, coords);
+      this.map.geoObjects.add(this.addressMark);
+    }
+  }
+
+  private changeValidMarkToInvalid(coords: number[]) {
+    if (this.map && this.invalidAddressMark && this.addressMark) {
+      this.map.geoObjects.remove(this.addressMark);
+      MapServices.moveMark(this.invalidAddressMark, coords);
+      this.map.geoObjects.add(this.invalidAddressMark);
+    }
+  }
+
 
   private placeAddressMark = async (e: object | ymaps.IEvent) => {
     const event = e as ymaps.IEvent;
     const coords = event.get('coords') as number[];
     if (this.addressMark && this.map) {
-      MapServices.moveMark(this.addressMark, coords);
-      this.map.geoObjects.add(this.addressMark);
       const address = await MapServices.getAddress(coords);
       if (address) {
+        this.changeInvalidMarkToValid(coords);
         const data: IMarkData = {
           address,
           lat: coords[0],
@@ -131,6 +187,7 @@ class MapServices {
         };
         this.notifyAll(data);
       } else {
+        this.changeValidMarkToInvalid(coords);
         const data: IAddressError = {
           error: ERRORS.FIND_BY_PLACEMARK,
           lat: coords[0],
@@ -159,6 +216,13 @@ class MapServices {
     }
   };
 
+  deleteAddressMarksFromMap() {
+    if (this.map && this.addressMark && this.invalidAddressMark) {
+      this.map.geoObjects.remove(this.addressMark);
+      this.map.geoObjects.remove(this.invalidAddressMark);
+    }
+  }
+
   deleteCabFromMap = async () => {
     this.cabMarks.forEach((cab) => {
       if (this.map) this.map.geoObjects.remove(cab);
@@ -177,8 +241,7 @@ class MapServices {
         const coords = firstGeoObject.geometry.getCoordinates();
         const bounds = firstGeoObject.properties.get('boundedBy', {}) as number[][];
         if (this.addressMark) {
-          MapServices.moveMark(this.addressMark, coords);
-          this.map.geoObjects.add(this.addressMark);
+          this.changeInvalidMarkToValid(coords);
           this.map.setBounds(bounds, {
             checkZoomRange: true,
           });
@@ -190,6 +253,7 @@ class MapServices {
         };
       }
     }
+    this.deleteAddressMarksFromMap();
     return { error: ERRORS.FIND_BY_ADDRESS };
   }
 
@@ -205,6 +269,7 @@ class MapServices {
     window.ymaps.ready(() => {
       this.createMap(id);
       this.createAddressMark();
+      this.createInvalidAddressMark();
       this.createCabMarks();
     });
   }
